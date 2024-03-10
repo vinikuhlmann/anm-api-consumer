@@ -1,0 +1,7 @@
+__pycache__
+.conda
+.vscode
+logs
+scraper-output
+scripts.egg-info
+scraper-output
