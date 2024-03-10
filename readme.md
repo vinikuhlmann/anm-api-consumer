@@ -57,6 +57,7 @@ output_path = scraper-output/cache.parquet (Caminho do cache de dados baixados; 
 timestamps_path = scraper-output/timestamps.json (Caminho das timestamps)
 processos_path = scraper-output/processos.csv (Caminho os dados da tabela processos)
 fases_path = scraper-output/fases.csv (Caminho dos dados da tabela fases)
+max_threads = 10 (Quantidade máxima de threads usadas para download dos dados)
 
 [database]
 user = developer

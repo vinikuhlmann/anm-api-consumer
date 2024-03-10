@@ -16,6 +16,7 @@ Author: Vinicius S. F. Kuhlmann
 Date: March 5, 2024
 """
 
+import concurrent.futures
 import json
 import re
 import threading
@@ -172,15 +173,17 @@ class SigmineScraper:
         URL = (
             f"https://app.anm.gov.br/dadosabertos/SIGMINE/PROCESSOS_MINERARIOS/{ZIP_F}"
         )
-        logger.debug(f"Baixando {ZIP_F} de {URL}")
 
         # Download the zip file
+        logger.debug(f"Baixando {ZIP_F} de {URL}")
         with open(dir / ZIP_F, "wb") as f:
-            f.write(pool.request("GET", URL).data)
+            for chunk in pool.request("GET", URL, preload_content=False):
+                f.write(chunk)
+        logger.debug(f"{ZIP_F} baixado")
 
         # Extract the dbf file
         DBF_F = f"{state.value}.dbf"
-        logger.debug(f"Extraindo {ZIP_F} para {DBF}")
+        logger.debug(f"Extraindo {ZIP_F} para {DBF_F}")
         with zipfile.ZipFile(dir / ZIP_F, "r") as zip_ref:
             zip_ref.extractall(path=dir, members=[DBF_F])
 
@@ -213,19 +216,18 @@ class SigmineScraper:
 
         logger.info(f"{len(states_to_update)} estados precisam ser atualizados")
 
-        df_list = []
-        threads = []
-        with TmpDir() as tmpdir, urllib3.PoolManager() as pool:
-            for state in states_to_update:
-                f = lambda: df_list.append(self._extract_state(state, tmpdir, pool))
-                thread = threading.Thread(target=f)
-                threads.append(thread)
-                thread.start()
-
-            for thread in threads:
-                thread.join()
-
-        df = pd.concat(df_list)
+        # fmt: off
+        # Use multithreading to extract the data from the states in parallel
+        with TmpDir() as tmpdir, \
+        urllib3.PoolManager() as pool, \
+        concurrent.futures.ThreadPoolExecutor(max_workers=int(config["max_threads"])) as executor:
+            # fmt: on
+            futures = [
+                executor.submit(self._extract_state, state, tmpdir, pool)
+                for state in states_to_update
+            ]
+            dfs = [future.result() for future in concurrent.futures.as_completed(futures)]
+        df = pd.concat(dfs, copy=False)
         logger.info("Dados crus extraídos e concatenados")
 
         return df
@@ -265,6 +267,8 @@ class DataFetcher:
         f = self.scraper.cache_path
         df.to_csv(f, index=False)
         logger.info(f"Cache de dados crus criado em {f}")
+
+        return df
 
 
 @dataclass
@@ -353,9 +357,9 @@ def fetch_data() -> bool:
     """
     timestamp_fetcher = TimestampFetcher(config["timestamps_path"])
     scraper = SigmineScraper(timestamp_fetcher, config["cache_path"])
-    data_fetcher = DataFetcher(scraper)
+    fetcher = DataFetcher(scraper)
     preprocessor = DataPreprocessor(config["processos_path"], config["fases_path"])
-    df = data_fetcher()
+    df = fetcher()
     if df.empty:
         return False
     preprocessor(df)
