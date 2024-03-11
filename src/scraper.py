@@ -198,7 +198,7 @@ class SigmineScraper:
             # fmt: on
             timestamps = self._fetch_timestamps_from_sigmine(pool)
             states_to_update = self._get_states_to_update(timestamps)
-            logger.debug(f"{len(states_to_update)} estados precisam ser atualizados")
+            logger.info(f"{len(states_to_update)} estados precisam ser atualizados")
 
             # Extract the data using multithreading
             futures = {
