@@ -16,7 +16,7 @@ def main():
 
     scraper = SigmineScraper()
     to_clean = scraper()
-    logger.info(
+    logger.debug(
         f"Memória máxima usada pelo scraper: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
     )
     tracemalloc.reset_peak()
@@ -24,19 +24,15 @@ def main():
     if to_clean:
         preprocessor = Preprocessor()
         preprocessor(to_clean)
-        logger.info(
+        logger.debug(
             f"Memória máxima usada pelo preprocessor: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
         )
         tracemalloc.reset_peak()
 
-        logger.info(
-            f"Máximo de memória alocada: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
-        )
-
         tracemalloc.reset_peak()
         updater = DatabaseUpdater()
         updater()
-        logger.info(
+        logger.debug(
             f"Memória máxima usada pelo updater: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
         )
 

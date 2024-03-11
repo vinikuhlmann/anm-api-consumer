@@ -42,7 +42,7 @@ class Preprocessor:
         )
         df = df.drop(columns="ult_evento")
         df = (
-            dd.concat([df, new_cols], axis=1)
+            dd.concat([df, new_cols], axis=1, ignore_unknown_divisions=True)
             .dropna(subset=["numero", "ano", "nome", "fase", "uf"])
             .drop_duplicates(subset=["numero", "ano", "fase", "uf"])
         )
