@@ -1,7 +1,6 @@
 import logging
 from configparser import ConfigParser
 from datetime import datetime
-from os.path import getctime
 from pathlib import Path
 
 
@@ -25,6 +24,7 @@ class Config(ConfigParser):
 
     def __init__(self, section: str):
         super().__init__()
+        self.default_section = None
         self.section = section
         try:
             self.read(self.path)
@@ -38,12 +38,7 @@ class Config(ConfigParser):
         return value
 
 
-def create_log_dir():
-    log_dir = Config("logger")["log_path"]
-    Path(log_dir).mkdir(exist_ok=True)
-
-
-create_log_dir()
+Path(Config("logger")["output_path"]).mkdir(exist_ok=True)
 
 
 class Logger(logging.Logger):
@@ -52,7 +47,7 @@ class Logger(logging.Logger):
         "%(asctime)s - %(name)s (%(levelname)s): %(message)s", "%H:%M:%S"
     )
     file_handler = logging.FileHandler(
-        config["log_path"] / f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.log",
+        config["output_path"] / f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.log",
         mode="w",
     )
     stream_handler = logging.StreamHandler()
@@ -66,30 +61,3 @@ class Logger(logging.Logger):
 
 
 logger = Logger(__name__)
-
-
-class TmpDir:
-    """Context manager for a temporary directory."""
-
-    def __enter__(self) -> Path:
-        self.tmpdir = root / "tmp"
-        self.tmpdir.mkdir(exist_ok=True)
-        logger.debug(f"Usando diretório temporário {self.tmpdir}")
-        return self.tmpdir
-
-    def __exit__(self, exc_type, exc_value, traceback):
-        for f in self.tmpdir.iterdir():
-            f.unlink()
-        self.tmpdir.rmdir()
-        logger.debug(f"Diretório temporário {self.tmpdir} e seu conteúdo apagados")
-
-
-def is_created_today(filepath: Path) -> bool:
-    """Checks if a file was created today"""
-    try:
-        timestamp = getctime(filepath)
-    except FileNotFoundError:
-        return False
-    dt = datetime.fromtimestamp(timestamp)
-    today = datetime.now().date()
-    return dt.date() == today

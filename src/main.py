@@ -1,16 +1,11 @@
 import os
 import tracemalloc
 
-from database import update_database
-from scraper import fetch_data
+from preprocessor import Preprocessor
+from updater import DatabaseUpdater
+from scraper import SigmineScraper
 from utils import Logger
-
-# Set the working directory to the root of the project
-here = os.path.abspath(__file__)
-scripts = os.path.dirname(here)
-src = os.path.dirname(scripts)
-root = os.path.dirname(src)
-os.chdir(root)
+from pathlib import Path
 
 logger = Logger(__name__)
 
@@ -18,15 +13,34 @@ logger = Logger(__name__)
 def main():
     logger.info("Iniciando o programa")
     tracemalloc.start()
-    if fetch_data():
-        update_database()
-        pass
-    logger.info("Programa finalizado com sucesso")
+
+    scraper = SigmineScraper()
+    to_clean = scraper()
     logger.info(
-        f"Máximo de memória alocada: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
+        f"Memória máxima usada pelo scraper: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
+    )
+    tracemalloc.reset_peak()
+
+    if to_clean:
+        preprocessor = Preprocessor()
+        preprocessor(to_clean)
+        logger.info(
+            f"Memória máxima usada pelo preprocessor: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
+        )
+        tracemalloc.reset_peak()
+
+        logger.info(
+            f"Máximo de memória alocada: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
+        )
+
+    tracemalloc.reset_peak()
+    updater = DatabaseUpdater()
+    updater()
+    logger.info(
+        f"Memória máxima usada pelo updater: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
     )
 
-    pass
+    logger.info("Programa finalizado com sucesso")
 
 
 if __name__ == "__main__":

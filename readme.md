@@ -53,11 +53,11 @@ log_path = logs (Pasta ondes os logs do programa serção armazenados)
 log_level = INFO (Nível de detalhe do log; escolha entre DEBUG, INFO, WARNING e ERROR)
 
 [scraper]
-output_path = scraper-output/cache.parquet (Caminho do cache de dados baixados; também suporta o formato .csv)
-timestamps_path = scraper-output/timestamps.json (Caminho das timestamps)
-processos_path = scraper-output/processos.csv (Caminho os dados da tabela processos)
-fases_path = scraper-output/fases.csv (Caminho dos dados da tabela fases)
+output_path = scraper-output (Pasta usada para armazenar os dados crus)
 max_threads = 10 (Quantidade máxima de threads usadas para download dos dados)
+
+[preprocessor]
+output_path = preprocessor-output (Pasta usada para armazenar os dados limpos)
 
 [database]
 user = developer
@@ -65,6 +65,7 @@ password = ****** (Mesma senha usada para acessar o servidor)
 host = ****** (localhost caso esteja dentro do servidor, senão, o IP do servidor)
 port = 9856
 database = sigmine_db
+chunksize = 100000 (Influencia na quantidade de memória usada na inserção dos dados)
 ```
 
 ## 7. Pronto! O script pode ser usado
