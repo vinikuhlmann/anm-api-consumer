@@ -18,6 +18,7 @@ Date: March 5, 2024
 
 import concurrent.futures
 import json
+import tracemalloc
 import re
 import zipfile
 from datetime import datetime
@@ -187,6 +188,7 @@ class SigmineScraper:
         """
         self.output_path.mkdir(exist_ok=True)
         paths = []
+        tracemalloc.start()
 
         # fmt: off
         with urllib3.PoolManager() as pool, \
@@ -194,7 +196,7 @@ class SigmineScraper:
             # fmt: on
             timestamps = self._fetch_timestamps_from_sigmine(pool)
             states_to_update = self._get_states_to_update(timestamps)
-            logger.info(f"{len(states_to_update)} estados precisam ser atualizados")
+            logger.debug(f"{len(states_to_update)} estados precisam ser atualizados")
 
             # Extract the data using multithreading
             futures = {
@@ -202,6 +204,7 @@ class SigmineScraper:
                 for state in states_to_update
             }
             for future in concurrent.futures.as_completed(futures):
+                logger.info(f"Memoria usada: {tracemalloc.get_traced_memory()[0] / 1e6:.2f} MB")
                 state = futures[future]
                 del futures[future]
                 path = self.output_path / f"{state.value}.parquet"
