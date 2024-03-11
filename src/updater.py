@@ -31,8 +31,8 @@ Base = declarative_base()
 
 class ProcessosTable(Base):
     __tablename__ = "processos"
-    numero = Column(CHAR(6))
-    ano = Column(CHAR(4))
+    numero = Column(CHAR(6), nullable=False)
+    ano = Column(CHAR(4), nullable=False)
     nome = Column(VARCHAR(150), nullable=False)
     area_ha = Column(FLOAT, default=0)
     subs = Column(VARCHAR(50))
@@ -44,11 +44,11 @@ class ProcessosTable(Base):
 
 class FasesTable(Base):
     __tablename__ = "fases"
-    numero = Column(CHAR(6))
-    ano = Column(CHAR(4))
-    mes = Column(CHAR(2))
+    numero = Column(CHAR(6), nullable=False)
+    ano = Column(CHAR(4), nullable=False)
+    mes = Column(CHAR(2), nullable=False)
     dia = Column(CHAR(2))
-    fase = Column(VARCHAR(50))
+    fase = Column(VARCHAR(50), nullable=False)
     estado = Column(CHAR(2))
     PrimaryKeyConstraint(numero, ano, fase, estado)
     ForeignKeyConstraint(["numero", "ano"], ["processos.numero", "processos.ano"])
@@ -99,6 +99,8 @@ class DatabaseUpdater:
     def _get_processos(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.groupby(["numero", "ano"]).agg(
             {
+                "numero": "first",
+                "ano": "first",
                 "nome": "first",
                 "area_ha": "sum",
                 "subs": "first",
