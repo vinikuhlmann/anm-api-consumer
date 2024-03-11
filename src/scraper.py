@@ -17,15 +17,17 @@ Date: March 5, 2024
 """
 
 import concurrent.futures
+import gc
 import json
-import tracemalloc
 import re
+import shutil
+import tempfile
+import tracemalloc
 import zipfile
 from datetime import datetime
 from os.path import getctime
 from pathlib import Path
-import tempfile
-import shutil
+
 import pandas as pd
 import urllib3
 from bs4 import BeautifulSoup
@@ -204,9 +206,10 @@ class SigmineScraper:
                 for state in states_to_update
             }
             for future in concurrent.futures.as_completed(futures):
-                logger.info(f"Memoria usada: {tracemalloc.get_traced_memory()[0] / 1e6:.2f} MB")
+                logger.debug(f"Memoria usada: {tracemalloc.get_traced_memory()[0] / 1e6:.2f} MB")
                 state = futures[future]
                 del futures[future]
+                gc.collect() # Garbage collection
                 path = self.output_path / f"{state.value}.parquet"
                 paths.append(path)
         
