@@ -203,6 +203,7 @@ class SigmineScraper:
             }
             for future in concurrent.futures.as_completed(futures):
                 state = futures[future]
+                del futures[future]
                 path = self.output_path / f"{state.value}.parquet"
                 paths.append(path)
         

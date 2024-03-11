@@ -33,12 +33,12 @@ def main():
             f"Máximo de memória alocada: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
         )
 
-    tracemalloc.reset_peak()
-    updater = DatabaseUpdater()
-    updater()
-    logger.info(
-        f"Memória máxima usada pelo updater: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
-    )
+        tracemalloc.reset_peak()
+        updater = DatabaseUpdater()
+        updater()
+        logger.info(
+            f"Memória máxima usada pelo updater: {tracemalloc.get_traced_memory()[1] / 1e6:.2f} MB"
+        )
 
     logger.info("Programa finalizado com sucesso")
 
