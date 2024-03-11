@@ -32,14 +32,7 @@ Inclua a seguinte linha no começo do arquivo para indicar ao sistema que deve u
 #!/opt/scraper-sigmine/.conda/bin/python
 ```
 
-## 5. Adicione a permissão de execução ao arquivo
-O seguinte comando permite que o arquivo seja executado:
-
-```
-chmod +x /opt/scraper-sigmine/src/main.py
-```
-
-## 6. Preencha as informações de configuração
+## 5. Preencha as informações de configuração
 Abra o arquivo `config.ini` e preencha as informações com asterisco.
 ```
 nano /opt/scraper-sigmine/config.ini
@@ -68,10 +61,10 @@ database = sigmine_db
 chunksize = 100000 (Influencia na quantidade de memória usada na inserção dos dados)
 ```
 
-## 7. Pronto! O script pode ser usado
-Para executar, invoque `main.py` no terminal:
+## 6. Pronto! O script pode ser usado
+Para executar, execute `main.py` no terminal usando o python criado no ambiente virtual:
 ```
-root@manding:~# /opt/scraper-sigmine/src/main.py
+/opt/scraper-sigmine/.conda/bin/python /opt/scraper-sigmine/src/main.py
 ```
 
 ## 8. Agendamento da execução
@@ -79,9 +72,9 @@ Para executar o arquivo automaticamente e rotineiramente, abra o arquivo de conf
 ```
 crontab -e
 ```
-E insira uma linha como indicado; por exemplo, para indicar que o programa deve rodar todo dia às 3 da manhã, insira:
+E insira o programa na lista de rotinas; por exemplo, para indicar que o programa deve rodar todo dia às 3 da manhã, insira:
 ```
-0 3 * * * /opt/extrator-sigmine/src/main.py
+0 3 * * * /opt/scraper-sigmine/.conda/bin/python /opt/scraper-sigmine/src/main.py
 ```
 
 # Outras informações
