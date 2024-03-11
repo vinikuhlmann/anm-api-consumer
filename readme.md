@@ -7,7 +7,7 @@ O objetivo deste script é extrair os dados públicos da base Sistema de Informa
 Use o seguinte comando para clonar o repositório na pasta desejada (recomenda-se a pasta `/opt`):
 
 ```
-git clone {link deste repositório} /opt/scraper-sigmine
+git clone https://github.com/vinikuhlmann/scraper-sigmine /opt/scraper-sigmine
 ```
 
 ## 2. Intale o Miniconda
